@@ -24,7 +24,7 @@ export function AdminShell({
   const [isNavOpen, setIsNavOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-cream">
+    <div className="flex h-screen overflow-hidden bg-cream">
       <AdminSidebar open={isNavOpen} onClose={() => setIsNavOpen(false)} />
       <div className="flex min-w-0 flex-1 flex-col">
         <AdminTopbar title={title} isConnected={isConnected} onMenuClick={() => setIsNavOpen(true)} />
