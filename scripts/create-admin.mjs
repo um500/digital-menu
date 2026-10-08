@@ -23,7 +23,12 @@ import bcrypt from "bcryptjs";
 
 function loadEnvLocal() {
   if (!existsSync(".env.local")) return;
-  const lines = readFileSync(".env.local", "utf8").split("\n");
+  let raw = readFileSync(".env.local", "utf8");
+  // Strip a UTF-8 BOM if present (common when a file is saved as "UTF-8
+  // with BOM" from an editor on Windows) — otherwise it silently breaks
+  // the regex match on the very first line of the file.
+  if (raw.charCodeAt(0) === 0xfeff) raw = raw.slice(1);
+  const lines = raw.split(/\r?\n/);
   for (const line of lines) {
     const match = line.match(/^([A-Z0-9_]+)=(.*)$/);
     if (match && !process.env[match[1]]) {
