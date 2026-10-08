@@ -14,15 +14,13 @@ you can open or share without going through the app at all.
 
 1. `cd sanity-studio`
 2. `npm install`
-3. Create a `.env` file here with (same project ID / dataset as the
-   main app's `.env.local`):
-   ```
-   SANITY_STUDIO_PROJECT_ID=your-project-id
-   SANITY_STUDIO_DATASET=production
-   ```
-4. **Requires Node.js 22.12 or newer** — this is a Sanity CLI
+3. **Requires Node.js 22.12 or newer** — this is a Sanity CLI
    requirement, unrelated to the main app (which runs fine on your
    current Node version). Run `node -v` to check; upgrade if needed.
+
+Project ID/dataset are hardcoded in `sanity.config.ts` and
+`sanity.cli.ts` (same non-secret values as the main app's
+`NEXT_PUBLIC_SANITY_PROJECT_ID`/`DATASET`) — no `.env` file needed here.
 
 ## Deploy the hosted link
 
