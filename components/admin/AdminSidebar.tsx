@@ -32,10 +32,10 @@ const NAV_ITEMS = [
   { href: "/admin/staff", label: "Staff", icon: UsersRound },
   { href: "/admin/reports", label: "Reports", icon: BarChart3 },
   { href: "/admin/settings", label: "Settings", icon: SlidersHorizontal },
-  // Menu content lives in Sanity Studio by design (see project notes) — this
-  // just gives admins a one-click way to get there rather than duplicating
-  // menu CRUD inside the admin app.
-  { href: "/studio", label: "Menu (Studio)", icon: UtensilsCrossed },
+  // Full menu CRUD (categories, items, photos, out-of-stock) lives here now
+  // — Sanity Studio (/studio) is still reachable directly for anything this
+  // page doesn't cover, but it's no longer the primary way in.
+  { href: "/admin/menu", label: "Menu", icon: UtensilsCrossed },
 ] as const;
 
 interface AdminSidebarProps {
@@ -79,7 +79,7 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
 
         <nav className="mt-8 flex flex-1 flex-col gap-1">
           {NAV_ITEMS.map((item) => {
-            const isActive = pathname?.startsWith(item.href) && item.href !== "/studio";
+            const isActive = pathname?.startsWith(item.href);
             const Icon = item.icon;
             return (
               <Link
