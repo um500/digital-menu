@@ -17,7 +17,7 @@ interface KitchenColumnProps {
 
 export function KitchenColumn({ title, tone, orders }: KitchenColumnProps) {
   return (
-    <div className="flex min-w-[280px] flex-1 flex-col gap-2.5">
+    <div className="flex w-full flex-col gap-2.5 sm:min-w-[280px] sm:flex-1">
       <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-cream/60">
         <span className={`h-2 w-2 rounded-full ${DOT_CLASSES[tone]}`} />
         {title} ({orders.length})
