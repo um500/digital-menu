@@ -1,0 +1,24 @@
+{
+  "name": "garden-cafe-sanity-studio",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Standalone Sanity Studio for Garden Cafe — deploy-only, gives a shareable *.sanity.studio link. The main app embeds its own copy of this same Studio at /studio for everyday menu editing; this folder exists only so that CLI commands (login/deploy) use their own dependencies, kept separate from the Next.js app's package.json.",
+  "scripts": {
+    "dev": "sanity dev",
+    "build": "sanity build",
+    "deploy": "sanity deploy",
+    "start": "sanity start"
+  },
+  "dependencies": {
+    "@sanity/vision": "^6.18.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "sanity": "^6.18.0",
+    "styled-components": "^6.1.15"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
+  }
+}
