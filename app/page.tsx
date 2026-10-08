@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 
-// No table context (not scanned from a QR) → demo mode drops straight into
-// the menu as a takeaway/counter order. A real table visit goes through
-// /table/[tableId] instead, which this redirect never touches.
+// The bare domain is where an admin lands to manage the restaurant — not a
+// customer entry point. Customers only ever reach the menu through a table's
+// QR code (/table/[tableId]) or a link an admin hands them; this root route
+// never touches those. proxy.ts sends anyone without a valid admin session
+// from here on to /admin/login automatically.
 export default function RootPage() {
-  redirect("/menu");
+  redirect("/admin/live-orders");
 }

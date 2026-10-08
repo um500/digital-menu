@@ -3,6 +3,7 @@
 import {
   BarChart3,
   Bell,
+  ChefHat,
   LayoutGrid,
   Package,
   ShoppingCart,
@@ -20,6 +21,10 @@ import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/admin/live-orders", label: "Live Orders", icon: Bell },
+  // Kitchen is its own full-screen board (meant for a kitchen tablet), not
+  // nested under /admin, but it shares the same admin login — so it belongs
+  // in this nav rather than being a URL only admins who know it can reach.
+  { href: "/kitchen", label: "Kitchen", icon: ChefHat },
   { href: "/admin/counter", label: "Counter", icon: ShoppingCart },
   { href: "/admin/tables", label: "Tables & QR", icon: LayoutGrid },
   { href: "/admin/inventory", label: "Inventory", icon: Package },

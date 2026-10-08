@@ -27,11 +27,18 @@ async function hasValidSession(req: NextRequest): Promise<boolean> {
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  const ok = await hasValidSession(req);
+
   if (pathname === "/admin/login") {
+    // Already signed in and landing back on the login page (e.g. the root
+    // redirect below) → skip straight to the dashboard instead of making
+    // them log in again.
+    if (ok) {
+      return NextResponse.redirect(new URL("/admin/live-orders", req.url));
+    }
     return NextResponse.next();
   }
 
-  const ok = await hasValidSession(req);
   if (!ok) {
     const loginUrl = new URL("/admin/login", req.url);
     return NextResponse.redirect(loginUrl);
