@@ -1,26 +1,79 @@
 @import "tailwindcss";
 
+/*
+ * Garden Cafe design tokens — matched to the brand's reference UI kit
+ * (warm cream backgrounds, near-black ink sidebar/kitchen screens, a rust
+ * terracotta primary, and a deep teal-green secondary accent for
+ * paid/positive states).
+ *
+ * Fonts: the reference kit uses a display serif for headings. This sandbox's
+ * network policy blocks fonts.googleapis.com/fonts.gstatic.com (confirmed —
+ * CONNECT tunnel denied), so next/font/google or a Google Fonts <link> would
+ * fail at build time here. We use a high-quality serif SYSTEM stack instead
+ * (Georgia/Cambria, which ships on every OS) — same approach the project
+ * already used for the sans stack, for the same offline-build-safety reason.
+ * If a later deploy environment has Fonts access, swap --font-display for
+ * next/font/google's Playfair Display/Lora and nothing else needs to change,
+ * since every heading already reads var(--font-display).
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf6ec;
+  --foreground: #1e1710;
+
+  /* Brand palette */
+  --color-cream: #faf6ec;
+  --color-cream-soft: #f5efe0;
+  --color-ink: #1e1710;
+  --color-ink-soft: #241b14;
+  --color-ink-sidebar: #211810;
+
+  --color-primary: #bc4a28;
+  --color-primary-dark: #9c3a1e;
+  --color-primary-light: #fbeae1;
+
+  --color-accent: #1f6f5c;
+  --color-accent-dark: #175646;
+  --color-accent-light: #e3f2ec;
+
+  --color-border: #ece2cd;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-cream: var(--color-cream);
+  --color-cream-soft: var(--color-cream-soft);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-ink-sidebar: var(--color-ink-sidebar);
+
+  --color-primary: var(--color-primary);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-primary-light: var(--color-primary-light);
+
+  --color-accent: var(--color-accent);
+  --color-accent-dark: var(--color-accent-dark);
+  --color-accent-light: var(--color-accent-light);
+
+  --color-border: var(--color-border);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Headings default to the brand's display serif everywhere, matching the
+   reference kit's typographic hierarchy (serif headings, sans body/UI). */
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
 }
