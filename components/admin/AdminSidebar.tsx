@@ -61,7 +61,7 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex h-full w-60 shrink-0 flex-col bg-ink-sidebar px-4 py-6 transition-transform duration-200 ease-out",
-          "lg:static lg:translate-x-0",
+          "lg:static lg:h-screen lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
