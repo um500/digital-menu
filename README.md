@@ -84,7 +84,13 @@ The functional app above (Phases 1–6) was rebuilt visually to match a set of b
 
 4. **Create an admin login**
 
-   Only the first admin user needs manual seeding — everything else (settings, tables) is managed from the admin UI once you're logged in. Insert one `Admin` document directly in MongoDB for your `restaurantId`, with `passwordHash` set to a bcrypt hash (12 rounds) of your chosen password — e.g. via a one-off Node script calling `lib/auth/password.ts`'s `hashPassword()`.
+   Only the first admin user needs manual seeding — everything else (settings, tables) is managed from the admin UI once you're logged in. There's deliberately no public "sign up as admin" page, so run this once, from somewhere that can actually reach your MongoDB (your own machine, not a restricted sandbox):
+
+   ```bash
+   node scripts/create-admin.mjs
+   ```
+
+   It asks for your name, email, and password on the terminal and creates the `Admin` document for you (`passwordHash` is a proper bcrypt hash, 12 rounds — the script never stores the plain password). Re-run it any time to add another admin.
 
 5. **Run the dev server**
 
