@@ -12,6 +12,7 @@ export interface ReportSummaryView {
   dailyRevenue: { date: string; revenue: number; orders: number }[];
   revenueByTable: { tableLabel: string; revenue: number; orders: number }[];
   gstRegister: {
+    orderId: string;
     orderNumber: string;
     date: string;
     subtotal: number;

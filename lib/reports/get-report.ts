@@ -18,6 +18,7 @@ export interface ReportSummary {
   revenueByTable: { tableLabel: string; revenue: number; orders: number }[];
   /** Per-order GST breakdown for the Sales Register / CSV export — capped at 500 rows. */
   gstRegister: {
+    orderId: string;
     orderNumber: string;
     date: string;
     subtotal: number;
@@ -172,6 +173,11 @@ export async function getReportSummary(
     .sort({ createdAt: 1 })
     .limit(500);
 
+  // This same list includes served orders already (the match above only
+  // excludes "cancelled"), so a served order's bill stays findable here —
+  // "Reports → GST Sales Register" with a Print action — long after it drops
+  // off the Live Orders board.
+
   const feedbackMatch = { ...match, feedback: { $ne: null } };
 
   const [feedbackSummary] = await Order.aggregate<{ avgRating: number; count: number }>([
@@ -219,6 +225,7 @@ export async function getReportSummary(
       orders: row.orders,
     })),
     gstRegister: gstRegisterDocs.map((o) => ({
+      orderId: o._id.toString(),
       orderNumber: o.orderNumber,
       date: o.createdAt.toISOString(),
       subtotal: o.subtotal,

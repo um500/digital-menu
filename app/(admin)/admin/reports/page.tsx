@@ -13,6 +13,7 @@ import { RevenueTrendChart } from "@/components/admin/reports/RevenueTrendChart"
 import { TopItemsTable } from "@/components/admin/reports/TopItemsTable";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { Loading } from "@/components/shared/Loading";
+import { usePublicSettings } from "@/hooks/use-public-settings";
 import { useReport } from "@/hooks/use-report";
 
 function todayIsoDate(): string {
@@ -25,6 +26,7 @@ export default function ReportsPage() {
   const [to, setTo] = useState(today);
 
   const { report, isLoading, error, mutate } = useReport(from, to);
+  const { settings } = usePublicSettings();
 
   return (
     <AdminShell title="Reports">
@@ -51,7 +53,11 @@ export default function ReportsPage() {
               <PaymentBreakdownTable report={report} />
               <RecentFeedback report={report} />
             </div>
-            <GstSalesRegister report={report} />
+            <GstSalesRegister
+              report={report}
+              restaurantName={settings?.restaurantName ?? "Garden Cafe"}
+              gstNumber={settings?.gstNumber}
+            />
           </>
         )}
       </div>
