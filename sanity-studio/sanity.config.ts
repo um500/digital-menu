@@ -5,10 +5,8 @@ import { structureTool } from "sanity/structure";
 import { structure } from "./structure";
 import { schema } from "./schemaTypes";
 
-// Hardcoded rather than read from .env — same non-secret values as the
-// main app's NEXT_PUBLIC_SANITY_PROJECT_ID/DATASET.
-const projectId = "bfoijyut";
-const dataset = "production";
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID || "";
+const dataset = process.env.SANITY_STUDIO_DATASET || "production";
 
 export default defineConfig({
   name: "garden-cafe-studio",

@@ -14,13 +14,20 @@ you can open or share without going through the app at all.
 
 1. `cd sanity-studio`
 2. `npm install`
-3. **Requires Node.js 22.12 or newer** — this is a Sanity CLI
+3. Create a `.env` file here (plain text, same folder as this README)
+   with:
+   ```
+   SANITY_STUDIO_PROJECT_ID=bfoijyut
+   SANITY_STUDIO_DATASET=production
+   ```
+   These two values aren't secret — they're the same project ID/dataset
+   already public in the main app's `NEXT_PUBLIC_SANITY_PROJECT_ID`/
+   `DATASET`, and in the live site's own JS bundle. The real secret
+   (`SANITY_API_WRITE_TOKEN`) is never needed in this folder — deploying
+   the Studio uses the login from `sanity login`, not an API token.
+4. **Requires Node.js 22.12 or newer** — this is a Sanity CLI
    requirement, unrelated to the main app (which runs fine on your
    current Node version). Run `node -v` to check; upgrade if needed.
-
-Project ID/dataset are hardcoded in `sanity.config.ts` and
-`sanity.cli.ts` (same non-secret values as the main app's
-`NEXT_PUBLIC_SANITY_PROJECT_ID`/`DATASET`) — no `.env` file needed here.
 
 ## Deploy the hosted link
 

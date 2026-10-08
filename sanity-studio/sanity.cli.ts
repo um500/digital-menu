@@ -1,9 +1,13 @@
+import { config as loadEnv } from "dotenv";
 import { defineCliConfig } from "sanity/cli";
 
-// Hardcoded rather than read from .env — these aren't secret (same values
-// as the main app's NEXT_PUBLIC_SANITY_PROJECT_ID/DATASET), and this avoids
-// the CLI not picking up a local .env file.
-const projectId = "bfoijyut";
-const dataset = "production";
+// sanity.cli.ts runs in plain Node, before the Studio's own bundler starts,
+// so it won't auto-load .env the way sanity.config.ts does — load it here
+// explicitly, or `sanity deploy` fails with "does not contain a project
+// identifier".
+loadEnv();
+
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID || "";
+const dataset = process.env.SANITY_STUDIO_DATASET || "production";
 
 export default defineCliConfig({ api: { projectId, dataset } });
