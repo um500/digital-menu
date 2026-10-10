@@ -1,9 +1,16 @@
 "use client";
 
-import { Bell, X } from "lucide-react";
+import { Bell } from "lucide-react";
 
 import { useWaiterCallToasts, type WaiterCallToast } from "@/hooks/use-waiter-call-toasts";
 
+/**
+ * Pinned top-right, just under the topbar — not bottom-right, where it's
+ * easy for a busy staff member to miss entirely. Stays on screen until
+ * "Acknowledge" is tapped (see use-waiter-call-toasts.ts): there's no
+ * separate silent-dismiss control, on purpose — a call a table is waiting
+ * on shouldn't be closeable without actually handling it.
+ */
 export function WaiterCallToasts() {
   const { toasts, dismiss } = useWaiterCallToasts();
 
@@ -18,7 +25,7 @@ export function WaiterCallToasts() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex w-72 flex-col gap-2">
+    <div className="fixed right-4 top-20 z-50 flex w-72 flex-col gap-2">
       {toasts.map((toast) => (
         <div
           key={toast.id}
@@ -36,19 +43,11 @@ export function WaiterCallToasts() {
             <button
               type="button"
               onClick={() => handleAcknowledge(toast)}
-              className="mt-1 text-xs font-medium text-amber-800 underline hover:text-amber-900"
+              className="mt-2 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-600"
             >
               Acknowledge
             </button>
           </div>
-          <button
-            type="button"
-            onClick={() => dismiss(toast.id)}
-            aria-label="Dismiss"
-            className="shrink-0 text-amber-500 hover:text-amber-700"
-          >
-            <X className="h-3.5 w-3.5" strokeWidth={2} />
-          </button>
         </div>
       ))}
     </div>

@@ -22,10 +22,12 @@ const POLL_INTERVAL_MS = 4000;
 
 /**
  * Watches GET /api/admin/waiter-calls (polled — see use-realtime-orders.ts
- * for why this isn't SSE anymore) and surfaces active calls as a
- * dismissible toast stack — independent of whichever admin page is open,
- * so a call raised while staff are on Settings or Inventory still gets
- * seen.
+ * for why this isn't SSE anymore) and surfaces active calls as a toast
+ * stack — independent of whichever admin page is open, so a call raised
+ * while staff are on Settings or Inventory still gets seen. A toast stays
+ * on screen until staff actually tap "Acknowledge" (no auto-hide timer) —
+ * a call waiting at a table shouldn't quietly disappear from view just
+ * because nobody looked at it in time.
  */
 export function useWaiterCallToasts() {
   const [toasts, setToasts] = useState<WaiterCallToast[]>([]);
@@ -40,9 +42,6 @@ export function useWaiterCallToasts() {
 
     function addToast(toast: WaiterCallToast) {
       setToasts((prev) => [...prev, toast]);
-      setTimeout(() => {
-        setToasts((prev) => prev.filter((t) => t.id !== toast.id));
-      }, 10000);
     }
 
     async function poll() {
