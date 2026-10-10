@@ -32,6 +32,16 @@ export async function listOpenOrders(restaurantId: string): Promise<IOrder[]> {
   }).sort({ createdAt: 1 });
 }
 
+/** Open orders with an active waiter call — polled by the admin dashboard (see use-waiter-call-toasts.ts). */
+export async function listActiveOrderWaiterCalls(restaurantId: string): Promise<IOrder[]> {
+  await connectDB();
+  return Order.find({
+    restaurantId,
+    status: { $nin: ["served", "cancelled"] },
+    waiterCallAt: { $ne: null },
+  });
+}
+
 /**
  * A customer's order history, keyed by phone number — this is what the
  * menu-page "account" (name + phone, no real login) resolves to. Same

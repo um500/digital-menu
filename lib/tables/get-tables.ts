@@ -31,3 +31,9 @@ export async function getTablesForRestaurant(restaurantId: string): Promise<ITab
   await connectDB();
   return Table.find({ restaurantId }).sort({ label: 1 });
 }
+
+/** Tables with an active waiter call — polled by the admin dashboard (see use-waiter-call-toasts.ts). */
+export async function listActiveTableWaiterCalls(restaurantId: string): Promise<ITable[]> {
+  await connectDB();
+  return Table.find({ restaurantId, waiterCallAt: { $ne: null } });
+}

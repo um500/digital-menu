@@ -13,28 +13,19 @@ export interface WaiterCallToast {
   tableLabel: string;
 }
 
-interface OrderEventPayload {
-  type: "order.created" | "order.updated" | "table.waiterCall";
-  order?: {
-    _id: string;
-    orderNumber: string;
-    tableLabel?: string | null;
-    waiterCallAt?: string | null;
-  };
-  table?: {
-    _id: string;
-    label: string;
-    waiterCallAt?: string | null;
-  };
+interface WaiterCallsResponse {
+  orderCalls: { orderId: string; orderNumber: string; tableLabel: string; waiterCallAt: string | null }[];
+  tableCalls: { tableId: string; tableLabel: string; waiterCallAt: string | null }[];
 }
 
+const POLL_INTERVAL_MS = 4000;
+
 /**
- * Watches the admin order stream for waiter calls and surfaces them as a
- * dismissible toast stack — independent of whichever admin page is open, so
- * a call raised while staff are on Settings or Inventory still gets seen.
- * Separate SSE connection from any page-level order list (e.g. Live
- * Orders' kanban board); the duplicate connection is a small cost for
- * toasts that work everywhere in the admin shell.
+ * Watches GET /api/admin/waiter-calls (polled — see use-realtime-orders.ts
+ * for why this isn't SSE anymore) and surfaces active calls as a
+ * dismissible toast stack — independent of whichever admin page is open,
+ * so a call raised while staff are on Settings or Inventory still gets
+ * seen.
  */
 export function useWaiterCallToasts() {
   const [toasts, setToasts] = useState<WaiterCallToast[]>([]);
@@ -45,7 +36,7 @@ export function useWaiterCallToasts() {
   const seenRef = useRef<Map<string, string | null>>(new Map());
 
   useEffect(() => {
-    const source = new EventSource("/api/orders/stream");
+    let cancelled = false;
 
     function addToast(toast: WaiterCallToast) {
       setToasts((prev) => [...prev, toast]);
@@ -54,46 +45,47 @@ export function useWaiterCallToasts() {
       }, 10000);
     }
 
-    source.onmessage = (event) => {
+    async function poll() {
       try {
-        const payload: OrderEventPayload = JSON.parse(event.data);
+        const res = await fetch("/api/admin/waiter-calls");
+        if (!res.ok) return;
+        const data: WaiterCallsResponse = await res.json();
+        if (cancelled) return;
 
-        if (payload.type === "table.waiterCall" && payload.table) {
-          const { table } = payload;
-          const key = `table:${table._id}`;
+        for (const call of data.tableCalls) {
+          const key = `table:${call.tableId}`;
           const previous = seenRef.current.get(key);
-          seenRef.current.set(key, table.waiterCallAt ?? null);
+          seenRef.current.set(key, call.waiterCallAt);
+          if (call.waiterCallAt && call.waiterCallAt !== previous) {
+            addToast({ id: `${key}-${call.waiterCallAt}`, tableId: call.tableId, tableLabel: call.tableLabel });
+          }
+        }
 
-          if (table.waiterCallAt && table.waiterCallAt !== previous) {
+        for (const call of data.orderCalls) {
+          const key = `order:${call.orderId}`;
+          const previous = seenRef.current.get(key);
+          seenRef.current.set(key, call.waiterCallAt);
+          if (call.waiterCallAt && call.waiterCallAt !== previous) {
             addToast({
-              id: `${key}-${table.waiterCallAt}`,
-              tableId: table._id,
-              tableLabel: table.label,
+              id: `${key}-${call.waiterCallAt}`,
+              orderId: call.orderId,
+              orderNumber: call.orderNumber,
+              tableLabel: call.tableLabel,
             });
           }
-          return;
-        }
-
-        if (!payload.order) return;
-        const { order } = payload;
-        const key = `order:${order._id}`;
-        const previous = seenRef.current.get(key);
-        seenRef.current.set(key, order.waiterCallAt ?? null);
-
-        if (order.waiterCallAt && order.waiterCallAt !== previous) {
-          addToast({
-            id: `${key}-${order.waiterCallAt}`,
-            orderId: order._id,
-            orderNumber: order.orderNumber,
-            tableLabel: order.tableLabel ?? "Takeaway",
-          });
         }
       } catch {
-        // heartbeat/comment lines have no `data:` field and never reach here
+        // transient network hiccup — next poll tries again
       }
-    };
+    }
 
-    return () => source.close();
+    poll();
+    const timer = setInterval(poll, POLL_INTERVAL_MS);
+
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
   }, []);
 
   function dismiss(id: string) {

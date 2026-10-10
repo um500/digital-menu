@@ -1,65 +1,65 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { OrderView } from "@/types/order";
 
-interface OrderEventPayload {
-  type: "order.created" | "order.updated";
-  order: OrderView;
-}
+const POLL_INTERVAL_MS = 4000;
 
 /**
- * Loads the current open orders once, then keeps them in sync via SSE.
- * `streamUrl` is /api/orders/stream for the admin board and
- * /api/kitchen/stream for the kitchen display — same payload shape, just a
- * different auth/connection endpoint.
+ * Keeps the Live Orders board / Kitchen board in sync by polling
+ * GET /api/orders every few seconds.
+ *
+ * This used to push updates over Server-Sent Events instead (see
+ * lib/realtime/order-events.ts), which felt instant in local dev — but that
+ * relies on an in-memory EventEmitter, and Vercel's serverless functions
+ * don't share memory across invocations. A customer's "call waiter" POST
+ * and the admin dashboard's long-lived SSE GET run as separate, isolated
+ * function instances in production, so an event published by one never
+ * reached a subscriber in the other — the admin side just never heard
+ * about it. Polling is a few seconds slower, but it's a plain HTTP request
+ * each time, so it actually works regardless of which instance handles it.
+ *
+ * `streamUrl` is accepted (and ignored) only so existing call sites —
+ * which used to pass /api/orders/stream or /api/kitchen/stream — don't
+ * need to change.
  */
-export function useRealtimeOrders(streamUrl: string) {
+export function useRealtimeOrders(streamUrl?: string): {
+  orders: OrderView[];
+  isLoading: boolean;
+  isConnected: boolean;
+} {
+  void streamUrl;
   const [orders, setOrders] = useState<OrderView[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
 
-  const upsertOrder = useCallback((incoming: OrderView) => {
-    setOrders((prev) => {
-      const idx = prev.findIndex((o) => o._id === incoming._id);
-      if (idx === -1) return [...prev, incoming];
-      const next = [...prev];
-      next[idx] = incoming;
-      return next;
-    });
-  }, []);
-
   useEffect(() => {
     let cancelled = false;
 
-    fetch("/api/orders")
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled) setOrders(data.orders ?? []);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    const source = new EventSource(streamUrl);
-
-    source.onopen = () => setIsConnected(true);
-    source.onerror = () => setIsConnected(false);
-    source.onmessage = (event) => {
+    async function poll() {
       try {
-        const payload: OrderEventPayload = JSON.parse(event.data);
-        upsertOrder(payload.order);
+        const res = await fetch("/api/orders");
+        if (!res.ok) throw new Error("Failed to load orders");
+        const data = await res.json();
+        if (cancelled) return;
+        setOrders(data.orders ?? []);
+        setIsConnected(true);
       } catch {
-        // heartbeat/comment lines have no `data:` field and never reach here
+        if (!cancelled) setIsConnected(false);
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
-    };
+    }
+
+    poll();
+    const timer = setInterval(poll, POLL_INTERVAL_MS);
 
     return () => {
       cancelled = true;
-      source.close();
+      clearInterval(timer);
     };
-  }, [streamUrl, upsertOrder]);
+  }, []);
 
   return { orders, isLoading, isConnected };
 }
