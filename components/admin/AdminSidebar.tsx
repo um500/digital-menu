@@ -5,6 +5,7 @@ import {
   Bell,
   ChefHat,
   LayoutGrid,
+  LogOut,
   Package,
   ShoppingCart,
   SlidersHorizontal,
@@ -14,9 +15,10 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
-import { GardenCafeLogo, LeafMark } from "@/components/shared/GardenCafeLogo";
+import { GardenCafeLogo } from "@/components/shared/GardenCafeLogo";
+import { useAdminSession } from "@/hooks/use-admin-session";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -46,6 +48,15 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { admin } = useAdminSession();
+
+  const initial = (admin?.name || admin?.email || "?").trim().charAt(0).toUpperCase();
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/admin/login");
+  }
 
   return (
     <>
@@ -98,13 +109,24 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
           })}
         </nav>
 
-        <div className="flex items-center gap-2 px-2 pt-6">
-          <LeafMark className="h-5 w-5 text-cream/30" />
-          <div className="text-xs leading-tight text-cream/40">
-            Great Food
-            <br />
-            Happier People
+        <div className="flex items-center gap-2 border-t border-white/10 px-2 pt-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">
+            {initial}
           </div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-medium leading-tight text-cream">
+              {admin?.name || "Admin"}
+            </div>
+            <div className="truncate text-xs leading-tight text-cream/40">{admin?.email || ""}</div>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            aria-label="Log out"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-cream/40 transition-colors hover:bg-white/10 hover:text-cream"
+          >
+            <LogOut className="h-4 w-4" strokeWidth={2} />
+          </button>
         </div>
       </aside>
     </>

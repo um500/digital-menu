@@ -1,9 +1,6 @@
 "use client";
 
-import { LogOut, MapPin, Menu, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
-
-import { useAdminSession } from "@/hooks/use-admin-session";
+import { MapPin, Menu, Search } from "lucide-react";
 
 interface AdminTopbarProps {
   title: string;
@@ -11,17 +8,8 @@ interface AdminTopbarProps {
   onMenuClick?: () => void;
 }
 
+/** Admin's name/email/avatar/logout now live at the bottom of the sidebar (AdminSidebar) instead of here. */
 export function AdminTopbar({ title, isConnected, onMenuClick }: AdminTopbarProps) {
-  const router = useRouter();
-  const { admin } = useAdminSession();
-
-  async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/admin/login");
-  }
-
-  const initial = (admin?.name || admin?.email || "?").trim().charAt(0).toUpperCase();
-
   return (
     <header className="flex items-center justify-between gap-4 border-b border-border bg-white px-4 py-3 sm:px-6">
       <div className="flex min-w-0 items-center gap-3">
@@ -55,24 +43,6 @@ export function AdminTopbar({ title, isConnected, onMenuClick }: AdminTopbarProp
             className="w-full rounded-full border border-border bg-cream-soft py-1.5 pl-9 pr-3 text-sm text-ink placeholder:text-ink/30 focus:border-primary focus:outline-none"
           />
         </label>
-      </div>
-
-      <div className="flex shrink-0 items-center gap-3">
-        <div className="hidden text-right sm:block">
-          <div className="text-sm font-medium leading-tight text-ink">{admin?.name || "Admin"}</div>
-          <div className="text-xs leading-tight text-ink/40">{admin?.email || ""}</div>
-        </div>
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">
-          {initial}
-        </div>
-        <button
-          type="button"
-          onClick={handleLogout}
-          aria-label="Log out"
-          className="flex h-9 w-9 items-center justify-center rounded-full text-ink/40 transition-colors hover:bg-cream-soft hover:text-primary"
-        >
-          <LogOut className="h-4 w-4" strokeWidth={2} />
-        </button>
       </div>
     </header>
   );
