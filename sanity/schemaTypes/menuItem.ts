@@ -63,6 +63,16 @@ export default defineType({
       initialValue: "veg",
     }),
     defineField({
+      name: "allergens",
+      title: "Allergens",
+      description: "Tag anything this dish contains, so customers can filter it out.",
+      type: "array",
+      of: [{ type: "string" }],
+      options: {
+        list: ["nuts", "dairy", "gluten", "egg", "soy", "shellfish", "sesame"],
+      },
+    }),
+    defineField({
       name: "isAvailable",
       title: "Available",
       description: "Toggle off to 86 an item (sold out) without deleting it.",

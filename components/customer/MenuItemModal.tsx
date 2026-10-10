@@ -51,6 +51,9 @@ export function MenuItemModal({ item, onClose, onAdd }: MenuItemModalProps) {
         <div>
           {item.description && <p className="text-sm text-ink/50">{item.description}</p>}
           <p className="mt-2 text-base font-semibold text-ink">{formatCurrency(item.price)}</p>
+          {item.allergens && item.allergens.length > 0 && (
+            <p className="mt-1 text-xs text-ink/40">Contains: {item.allergens.join(", ")}</p>
+          )}
         </div>
 
         <div className="space-y-1.5">

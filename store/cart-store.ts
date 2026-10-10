@@ -12,7 +12,16 @@ export interface CartLine {
 interface CartState {
   tableId: string | null;
   lines: CartLine[];
+  // The "account" — name + phone captured once on the menu page before it's
+  // shown at all. Persisted on this device so a returning customer (or a
+  // customer who refreshes mid-meal) isn't asked again; it's what ties
+  // their loyalty points and order history to a phone number without a
+  // real login system. Never cleared by clear() — that only empties the
+  // cart, not the profile.
+  customerName: string | null;
+  customerPhone: string | null;
   setTable: (tableId: string | null) => void;
+  setProfile: (name: string, phone: string) => void;
   addItem: (item: Omit<CartLine, "quantity">, quantity?: number) => void;
   updateQuantity: (menuItemId: string, quantity: number) => void;
   removeItem: (menuItemId: string) => void;
@@ -26,8 +35,12 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       tableId: null,
       lines: [],
+      customerName: null,
+      customerPhone: null,
 
       setTable: (tableId) => set({ tableId }),
+
+      setProfile: (name, phone) => set({ customerName: name, customerPhone: phone }),
 
       addItem: (item, quantity = 1) =>
         set((state) => {

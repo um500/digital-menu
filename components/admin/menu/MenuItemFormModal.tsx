@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { Switch } from "@/components/ui/switch";
+import { ALLERGENS } from "@/lib/constants/allergens";
 import { urlForImage } from "@/lib/sanity/image";
 import type { AdminMenuCategory, AdminMenuItem } from "@/types/admin-menu";
 import type { FoodType } from "@/types/menu";
@@ -39,6 +40,7 @@ export function MenuItemFormModal({
   const [price, setPrice] = useState(item?.price ?? 0);
   const [taxPercent, setTaxPercent] = useState(item?.taxPercent ?? 5);
   const [foodType, setFoodType] = useState<FoodType>(item?.foodType ?? "veg");
+  const [allergens, setAllergens] = useState<string[]>(item?.allergens ?? []);
   const [isAvailable, setIsAvailable] = useState(item?.isAvailable ?? true);
   const [isBestseller, setIsBestseller] = useState(item?.isBestseller ?? false);
   const [image, setImage] = useState<ImageValue>((item?.image as ImageValue) ?? null);
@@ -96,6 +98,7 @@ export function MenuItemFormModal({
           price,
           taxPercent,
           foodType,
+          allergens,
           isAvailable,
           isBestseller,
           image,
@@ -248,6 +251,33 @@ export function MenuItemFormModal({
                 {ft}
               </button>
             ))}
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <span className="text-sm font-medium text-ink/70">Allergens (optional)</span>
+          <div className="flex flex-wrap gap-2">
+            {ALLERGENS.map((a) => {
+              const checked = allergens.includes(a.value);
+              return (
+                <button
+                  key={a.value}
+                  type="button"
+                  onClick={() =>
+                    setAllergens((prev) =>
+                      checked ? prev.filter((v) => v !== a.value) : [...prev, a.value]
+                    )
+                  }
+                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    checked
+                      ? "border-primary bg-primary text-white"
+                      : "border-border bg-white text-ink/60 hover:bg-cream-soft"
+                  }`}
+                >
+                  {a.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 

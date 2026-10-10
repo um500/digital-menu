@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 
 import { CartSummary } from "@/components/customer/CartSummary";
 import { CheckoutForm } from "@/components/customer/CheckoutForm";
+import { JoinTableOrderPrompt } from "@/components/customer/JoinTableOrderPrompt";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 
 export default function CheckoutPage() {
-  const { lines, subtotal, tableId } = useCart();
+  const { lines, subtotal, tableId, clear } = useCart();
   const router = useRouter();
 
   if (lines.length === 0) {
@@ -26,6 +27,15 @@ export default function CheckoutPage() {
   return (
     <div className="px-4 py-4">
       <h1 className="font-display mb-3 text-lg font-semibold text-ink">Checkout</h1>
+
+      <JoinTableOrderPrompt
+        tableId={tableId}
+        lines={lines}
+        onJoined={(orderId) => {
+          clear();
+          router.push(`/order/${orderId}`);
+        }}
+      />
 
       <div className="mb-4 rounded-xl border border-border bg-white p-4">
         <CartSummary subtotal={subtotal} />

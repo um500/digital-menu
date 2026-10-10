@@ -31,3 +31,20 @@ export async function listOpenOrders(restaurantId: string): Promise<IOrder[]> {
     status: { $nin: ["served", "cancelled"] },
   }).sort({ createdAt: 1 });
 }
+
+/**
+ * A customer's order history, keyed by phone number — this is what the
+ * menu-page "account" (name + phone, no real login) resolves to. Same
+ * trust level as GET /api/customers/lookup (which already exposes a
+ * phone's loyalty balance with no auth beyond knowing the number).
+ */
+export async function getOrdersByPhone(
+  restaurantId: string,
+  customerPhone: string,
+  limit = 20
+): Promise<IOrder[]> {
+  await connectDB();
+  return Order.find({ restaurantId, customerPhone })
+    .sort({ createdAt: -1 })
+    .limit(limit);
+}

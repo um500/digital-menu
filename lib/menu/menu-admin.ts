@@ -102,6 +102,7 @@ export async function createMenuItem(restaurantId: string, input: CreateMenuItem
     price: input.price,
     taxPercent: input.taxPercent,
     foodType: input.foodType,
+    allergens: input.allergens,
     isAvailable: input.isAvailable,
     isBestseller: input.isBestseller,
     // Created straight from the dashboard, not Studio's draft workflow — an
@@ -122,6 +123,7 @@ export async function updateMenuItem(restaurantId: string, itemId: string, input
   if (input.price !== undefined) patch.price = input.price;
   if (input.taxPercent !== undefined) patch.taxPercent = input.taxPercent;
   if (input.foodType !== undefined) patch.foodType = input.foodType;
+  if (input.allergens !== undefined) patch.allergens = input.allergens;
   if (input.isAvailable !== undefined) patch.isAvailable = input.isAvailable;
   if (input.isBestseller !== undefined) patch.isBestseller = input.isBestseller;
   if (input.image !== undefined) patch.image = input.image ?? undefined;

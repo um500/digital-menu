@@ -17,6 +17,7 @@ export const MENU_QUERY = groq`
       price,
       taxPercent,
       foodType,
+      allergens,
       isAvailable,
       isBestseller,
     }

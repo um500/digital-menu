@@ -9,6 +9,10 @@ export interface ITable extends Document {
   status: TableStatus;
   qrSignature: string; // HMAC signature baked into the printed QR, verified on scan
   activeOrderId?: mongoose.Types.ObjectId | null;
+  // Set when a customer taps "Call waiter" from the menu page itself, before
+  // any order exists yet — see lib/tables/call-waiter.ts. Cleared once an
+  // admin acknowledges it, same pattern as Order.waiterCallAt.
+  waiterCallAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,6 +29,7 @@ const TableSchema = new Schema<ITable>(
     },
     qrSignature: { type: String, required: true },
     activeOrderId: { type: Schema.Types.ObjectId, ref: "Order", default: null },
+    waiterCallAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

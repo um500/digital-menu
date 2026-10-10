@@ -2,14 +2,17 @@
 
 import { Bell, X } from "lucide-react";
 
-import { useWaiterCallToasts } from "@/hooks/use-waiter-call-toasts";
+import { useWaiterCallToasts, type WaiterCallToast } from "@/hooks/use-waiter-call-toasts";
 
 export function WaiterCallToasts() {
   const { toasts, dismiss } = useWaiterCallToasts();
 
-  async function handleAcknowledge(orderId: string, toastId: string) {
-    dismiss(toastId);
-    await fetch(`/api/orders/${orderId}/call-waiter`, { method: "DELETE" });
+  async function handleAcknowledge(toast: WaiterCallToast) {
+    dismiss(toast.id);
+    const url = toast.orderId
+      ? `/api/orders/${toast.orderId}/call-waiter`
+      : `/api/tables/${toast.tableId}/call-waiter`;
+    await fetch(url, { method: "DELETE" });
   }
 
   if (toasts.length === 0) return null;
@@ -27,11 +30,12 @@ export function WaiterCallToasts() {
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-amber-900">Waiter called</p>
             <p className="text-xs text-amber-700">
-              #{toast.orderNumber} · {toast.tableLabel}
+              {toast.orderNumber ? `#${toast.orderNumber} · ` : ""}
+              {toast.tableLabel}
             </p>
             <button
               type="button"
-              onClick={() => handleAcknowledge(toast.orderId, toast.id)}
+              onClick={() => handleAcknowledge(toast)}
               className="mt-1 text-xs font-medium text-amber-800 underline hover:text-amber-900"
             >
               Acknowledge

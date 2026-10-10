@@ -27,6 +27,7 @@ export const createMenuItemSchema = z.object({
   price: z.number().min(0),
   taxPercent: z.number().min(0).max(100).default(5),
   foodType: z.enum(["veg", "non-veg", "egg"]).default("veg"),
+  allergens: z.array(z.string()).optional().default([]),
   isAvailable: z.boolean().default(true),
   isBestseller: z.boolean().default(false),
   image: imageValueSchema,

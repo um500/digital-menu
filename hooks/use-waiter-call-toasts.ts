@@ -4,17 +4,26 @@ import { useEffect, useRef, useState } from "react";
 
 export interface WaiterCallToast {
   id: string;
-  orderId: string;
-  orderNumber: string;
+  // Exactly one of these is set — which one decides how the toast
+  // acknowledges itself (order route vs table route). See
+  // WaiterCallToasts.tsx.
+  orderId?: string;
+  tableId?: string;
+  orderNumber?: string;
   tableLabel: string;
 }
 
 interface OrderEventPayload {
-  type: "order.created" | "order.updated";
-  order: {
+  type: "order.created" | "order.updated" | "table.waiterCall";
+  order?: {
     _id: string;
     orderNumber: string;
     tableLabel?: string | null;
+    waiterCallAt?: string | null;
+  };
+  table?: {
+    _id: string;
+    label: string;
     waiterCallAt?: string | null;
   };
 }
@@ -29,32 +38,55 @@ interface OrderEventPayload {
  */
 export function useWaiterCallToasts() {
   const [toasts, setToasts] = useState<WaiterCallToast[]>([]);
-  // Tracks the last-seen waiterCallAt per order so a call is only toasted
-  // once, and a *new* call on the same order (after being acknowledged)
-  // still toasts again.
+  // Tracks the last-seen waiterCallAt per order/table (key prefixed so the
+  // two id spaces can't collide) so a call is only toasted once, and a
+  // *new* call on the same order/table (after being acknowledged) still
+  // toasts again.
   const seenRef = useRef<Map<string, string | null>>(new Map());
 
   useEffect(() => {
     const source = new EventSource("/api/orders/stream");
 
+    function addToast(toast: WaiterCallToast) {
+      setToasts((prev) => [...prev, toast]);
+      setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== toast.id));
+      }, 10000);
+    }
+
     source.onmessage = (event) => {
       try {
         const payload: OrderEventPayload = JSON.parse(event.data);
+
+        if (payload.type === "table.waiterCall" && payload.table) {
+          const { table } = payload;
+          const key = `table:${table._id}`;
+          const previous = seenRef.current.get(key);
+          seenRef.current.set(key, table.waiterCallAt ?? null);
+
+          if (table.waiterCallAt && table.waiterCallAt !== previous) {
+            addToast({
+              id: `${key}-${table.waiterCallAt}`,
+              tableId: table._id,
+              tableLabel: table.label,
+            });
+          }
+          return;
+        }
+
+        if (!payload.order) return;
         const { order } = payload;
-        const previous = seenRef.current.get(order._id);
-        seenRef.current.set(order._id, order.waiterCallAt ?? null);
+        const key = `order:${order._id}`;
+        const previous = seenRef.current.get(key);
+        seenRef.current.set(key, order.waiterCallAt ?? null);
 
         if (order.waiterCallAt && order.waiterCallAt !== previous) {
-          const toast: WaiterCallToast = {
-            id: `${order._id}-${order.waiterCallAt}`,
+          addToast({
+            id: `${key}-${order.waiterCallAt}`,
             orderId: order._id,
             orderNumber: order.orderNumber,
             tableLabel: order.tableLabel ?? "Takeaway",
-          };
-          setToasts((prev) => [...prev, toast]);
-          setTimeout(() => {
-            setToasts((prev) => prev.filter((t) => t.id !== toast.id));
-          }, 10000);
+          });
         }
       } catch {
         // heartbeat/comment lines have no `data:` field and never reach here

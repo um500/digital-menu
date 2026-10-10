@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 
 import { Input } from "@/components/ui/input";
+import { useCart } from "@/hooks/use-cart";
 import { usePublicSettings } from "@/hooks/use-public-settings";
 import type { PaymentMethod } from "@/types/order";
 import { CouponInput } from "./CouponInput";
@@ -18,8 +19,12 @@ interface CheckoutFormProps {
 
 export function CheckoutForm({ tableId, estimatedAmount, onOrderPlaced }: CheckoutFormProps) {
   const { settings } = usePublicSettings();
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
+  // Prefilled from the account captured at the menu-page gate (see
+  // CustomerIdentityGate) — still editable here in case they're ordering
+  // for someone else at the table.
+  const { customerName: accountName, customerPhone: accountPhone } = useCart();
+  const [customerName, setCustomerName] = useState(accountName ?? "");
+  const [customerPhone, setCustomerPhone] = useState(accountPhone ?? "");
   const [couponCode, setCouponCode] = useState<string | null>(null);
   const [redeemPoints, setRedeemPoints] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");

@@ -11,6 +11,7 @@ export interface MenuItem {
   price: number;
   taxPercent: number;
   foodType: FoodType;
+  allergens?: string[];
   isAvailable: boolean;
   isBestseller: boolean;
 }

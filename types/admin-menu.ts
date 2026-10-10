@@ -20,6 +20,7 @@ export interface AdminMenuItem {
   price: number;
   taxPercent: number;
   foodType: FoodType;
+  allergens?: string[];
   isAvailable: boolean;
   isBestseller: boolean;
   isPublished: boolean;

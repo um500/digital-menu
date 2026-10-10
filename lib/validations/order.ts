@@ -50,6 +50,23 @@ export const transferOrderSchema = z.object({
   toTableId: z.string().min(1),
 });
 
+// A second person at the same table adding to the table's already-open
+// order, instead of starting a fresh one (see lib/orders/join-table-order.ts).
+export const joinTableOrderSchema = z.object({
+  restaurantId: z.string().min(1),
+  items: z
+    .array(
+      z.object({
+        menuItemId: z.string().min(1),
+        quantity: z.number().int().min(1).max(50),
+        notes: z.string().max(200).optional(),
+      })
+    )
+    .min(1, "Cart is empty"),
+});
+
+export type JoinTableOrderInput = z.infer<typeof joinTableOrderSchema>;
+
 export const mergeOrdersSchema = z.object({
   sourceOrderId: z.string().min(1),
   targetOrderId: z.string().min(1),
